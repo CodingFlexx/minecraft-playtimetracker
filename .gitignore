@@ -1,0 +1,10 @@
+.gradle/
+build/
+run/
+.tooling/
+.firecrawl/
+docs/superpowers/
+*.class
+.idea/
+*.iml
+.DS_Store
