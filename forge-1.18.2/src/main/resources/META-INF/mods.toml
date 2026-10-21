@@ -1,0 +1,23 @@
+modLoader="javafml"
+loaderVersion="[40,)"
+license="MIT"
+
+[[mods]]
+modId="playtimetracker"
+version="${version}"
+displayName="Playtime + AFK Tracker — GUI"
+description='''Playtime and AFK tracker with a browsable player-statistics leaderboard inspired by FTB Utilities. Install on server and clients. Optional FTB Library inventory-sidebar integration.'''
+
+[[dependencies.playtimetracker]]
+modId="forge"
+mandatory=true
+versionRange="[40.3.11,41)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.playtimetracker]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.18.2]"
+ordering="NONE"
+side="BOTH"

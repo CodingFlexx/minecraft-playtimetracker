@@ -1,0 +1,23 @@
+modLoader="javafml"
+loaderVersion="[40,)"
+license="MIT"
+
+[[mods]]
+modId="playtimetracker"
+version="${version}"
+displayName="Playtime + AFK Tracker — No GUI"
+description='''Server-only playtime and AFK display. Install on a dedicated Forge 1.18.2 server; clients do not need this mod. No custom client packets or leaderboard GUI. Requires Forge on the server, not a plain Mojang Vanilla server.'''
+
+[[dependencies.playtimetracker]]
+modId="forge"
+mandatory=true
+versionRange="[40.3.11,41)"
+ordering="NONE"
+side="SERVER"
+
+[[dependencies.playtimetracker]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.18.2]"
+ordering="NONE"
+side="SERVER"

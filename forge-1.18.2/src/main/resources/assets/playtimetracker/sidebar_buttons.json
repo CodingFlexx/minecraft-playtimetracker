@@ -1,0 +1,9 @@
+{
+  "leaderboards": {
+    "group": "ftblibrary:info",
+    "icon": "item:minecraft:clock",
+    "x": 30,
+    "click": "command:/playtime",
+    "required_server_mods": ["playtimetracker"]
+  }
+}

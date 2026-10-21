@@ -1,0 +1,82 @@
+plugins {
+    id 'java'
+    id 'net.minecraftforge.gradle' version '6.0.54'
+}
+
+group = 'dev.zoffmann'
+version = providers.gradleProperty('mod_version').get()
+def variant = providers.gradleProperty('variant').orElse('gui').get()
+if (!(variant in ['gui', 'nogui'])) throw new GradleException('variant must be gui or nogui')
+def noGui = variant == 'nogui'
+layout.buildDirectory = layout.projectDirectory.dir("build/${variant}")
+base.archivesName = "playtimetracker-1.18.2-forge-${variant}"
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    withSourcesJar()
+}
+
+// Share the tested AFK and tick-to-hour logic with the Fabric version, while
+// excluding its entrypoint, packet adapter and mixin from this Forge build.
+sourceSets {
+    main.java {
+        srcDir '../src/main/java'
+        include 'dev/zoffmann/playtimetracker/AfkTracker.java'
+        include 'dev/zoffmann/playtimetracker/PlaytimeFormatter.java'
+        if (noGui) {
+            srcDir 'src/nogui/java'
+            include 'dev/zoffmann/playtimetracker/forge/ServerTracking.java'
+            include 'dev/zoffmann/playtimetracker/forge/AfkTeams.java'
+            include 'dev/zoffmann/playtimetracker/forge/TabDisplayManager.java'
+            include 'dev/zoffmann/playtimetracker/forge/NoGuiPlaytimeTrackerMod.java'
+        } else {
+            include 'dev/zoffmann/playtimetracker/forge/**'
+        }
+    }
+    main.resources.setSrcDirs(noGui ? ['src/nogui/resources'] : ['src/main/resources'])
+    test.java.srcDir '../src/test/java'
+    if (noGui) test.java.exclude '**/leaderboard/**'
+}
+
+minecraft {
+    mappings channel: 'official', version: '1.18.2'
+    runs {
+        server {
+            workingDirectory project.file("run/${variant}")
+            args '--nogui'
+            mods { playtimetracker { source sourceSets.main } }
+        }
+    }
+}
+repositories { mavenCentral() }
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.18.2-40.3.11'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
+}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('META-INF/mods.toml') { expand version: project.version }
+}
+test { useJUnitPlatform() }
+jar {
+    manifest.attributes('Implementation-Title': 'Playtime + AFK Tracker',
+            'Implementation-Version': project.version, 'Build-Jdk-Spec': '17')
+    finalizedBy 'reobfJar'
+}
+
+tasks.register('verifyArtifact', Exec) {
+    group = 'verification'
+    description = 'Verify variant metadata, class isolation and release archives.'
+    dependsOn 'reobfJar', 'sourcesJar'
+    doFirst {
+        commandLine 'python3', 'scripts/verify_artifact.py',
+                '--jar', tasks.jar.archiveFile.get().asFile.absolutePath,
+                '--sources', tasks.sourcesJar.archiveFile.get().asFile.absolutePath,
+                '--variant', variant, '--version', project.version.toString()
+    }
+}
+tasks.named('check') { dependsOn 'verifyArtifact' }
