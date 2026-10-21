@@ -22,15 +22,20 @@ The two Forge editions use the same mod ID. Install **one edition at a time**;
 remove the previous tracker JAR when switching. Existing vanilla playtime
 statistics are preserved.
 
-## Forge 1.18.2 — version 1.2.0
+## Forge 1.18.2 — version 1.2.1
 
-- **No GUI:** `playtimetracker-1.18.2-forge-nogui-1.2.0.jar` — install on the server;
+- **No GUI:** `playtimetracker-1.18.2-forge-nogui-1.2.1.jar` — install on the server;
   players join using ordinary 1.18.2 clients without this mod. Contains no custom
   client channel, client classes, inventory button or leaderboard.
-- **GUI:** `playtimetracker-1.18.2-forge-gui-1.2.0.jar` — install the matching JAR on
+- **GUI:** `playtimetracker-1.18.2-forge-gui-1.2.1.jar` — install the matching JAR on
   server and clients. Opens via the FTB Library inventory sidebar, a fallback
   inventory button, `/playtime`, or `/leaderboard`. The 176 × 166 GUI-pixel panel
   uses Minecraft inventory styling with six item tabs and player details.
+
+Version **1.2.1** fixes a GUI crash when reading live movement statistics that
+broke leaderboard commands and player logout in versions 1.1.0–1.2.0. The fix uses
+registered Minecraft statistic constants and has Forge GameTest regression coverage.
+Update the GUI JAR on both server and clients. Fabric and Forge No GUI were unaffected.
 
 [Forge installation, behavior and build guide](forge-1.18.2/README.md)
 

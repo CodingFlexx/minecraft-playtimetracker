@@ -35,6 +35,12 @@ sourceSets {
     main.resources.setSrcDirs(noGui ? ['src/nogui/resources'] : ['src/main/resources'])
     test.java.srcDir '../src/test/java'
     if (noGui) test.java.exclude '**/leaderboard/**'
+    if (!noGui) {
+        gametest {
+            compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+            runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+        }
+    }
 }
 
 minecraft {
@@ -44,6 +50,13 @@ minecraft {
             workingDirectory project.file("run/${variant}")
             args '--nogui'
             mods { playtimetracker { source sourceSets.main } }
+        }
+        if (!noGui) {
+            gameTestServer {
+                workingDirectory project.file('run/gametest')
+                property 'forge.enabledGameTestNamespaces', 'playtimetracker'
+                mods { playtimetracker { source sourceSets.main; source sourceSets.gametest } }
+            }
         }
     }
 }

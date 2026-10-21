@@ -1,4 +1,4 @@
-# Playtime + AFK Tracker 1.2.0 — Forge 1.18.2: GUI / No GUI
+# Playtime + AFK Tracker 1.2.1 — Forge 1.18.2: GUI / No GUI
 
 Zwei getrennte Builds für **Minecraft 1.18.2**, **Forge 40.3.11+ innerhalb
 40.x** und **Java 17**. Zum Bauen wird außerdem Python 3.11+ benötigt.
@@ -14,15 +14,25 @@ Vanilla-Client-Verbindung ist über das Forge-DisplayTest-Protokoll freigegeben;
 ein vollständiger Verbindungstest im Spiel steht noch aus. Andere Mods auf dem
 Server dürfen ebenfalls keine Client-Mods voraussetzen.
 
+## Korrektur in 1.2.1
+
+Die GUI-Versionen 1.1.0 bis 1.2.0 erzeugten beim Lesen der Live-Streckenstatistik
+neue `ResourceLocation`-Objekte. Die Custom-Stat-Registry von Minecraft 1.18.2
+verlangt die registrierten Objektinstanzen; dadurch entstand eine
+`NullPointerException` beim Öffnen des Leaderboards und beim Abmelden.
+1.2.1 verwendet die registrierten `Stats`-Konstanten für alle 13 Streckenzähler.
+Die Forge-No-GUI- und Fabric-Versionen waren von diesem Fehler nicht betroffen.
+Bei GUI müssen Server und Clients auf dieselbe neue JAR aktualisiert werden.
+
 ## Installation
 
-**No GUI:** `playtimetracker-1.18.2-forge-nogui-1.2.0.jar` aus
+**No GUI:** `playtimetracker-1.18.2-forge-nogui-1.2.1.jar` aus
 `build/nogui/libs/` ausschließlich in den `mods/`-Ordner des Servers legen.
 Keine Client-Installation, keine eigenen Netzwerkpakete und keine Leaderboard-
 Befehle. Die JAR enthält keine Client- oder Leaderboard-Klassen und keine
 Inventarbuttons; der Build prüft diese Trennung automatisch.
 
-**GUI:** `playtimetracker-1.18.2-forge-gui-1.2.0.jar` aus `build/gui/libs/`
+**GUI:** `playtimetracker-1.18.2-forge-gui-1.2.1.jar` aus `build/gui/libs/`
 auf dem Server und allen Clients installieren. Mit **FTB Library für Forge
 1.18.2** erscheint ein Uhr-Button in der FTB-Inventarleiste. Ohne FTB Library gibt
 es einen eigenen `L`-Button. FTB Teams und FTB Quests sind keine Abhängigkeiten.
@@ -98,12 +108,24 @@ Mit JDK 17 in diesem Verzeichnis:
 ./gradlew -Pvariant=gui build
 ```
 
-Ergebnisse: `build/nogui/libs/playtimetracker-1.18.2-forge-nogui-1.2.0.jar` und
-`build/gui/libs/playtimetracker-1.18.2-forge-gui-1.2.0.jar`.
+Ergebnisse: `build/nogui/libs/playtimetracker-1.18.2-forge-nogui-1.2.1.jar` und
+`build/gui/libs/playtimetracker-1.18.2-forge-gui-1.2.1.jar`.
 Ohne `-Pvariant` wird die GUI-Variante gebaut.
 Die `-sources.jar` ist Quellcode und gehört nicht in `mods/`.
 Gradle 8.8 und ForgeGradle 6.0.54 sind festgelegt; die reine Stunden-/AFK-Logik
 und ihre Tests werden direkt mit dem Fabric-Projekt geteilt.
+
+Der GUI-Regressionstest läuft zusätzlich in einem echten Forge-Testserver:
+
+```sh
+./gradlew -Pvariant=gui runGameTestServer
+```
+
+Vier GameTests prüfen leere Live-Zähler, alle 13 Bewegungsarten einschließlich
+Summen über dem Integer-Limit, die Übereinstimmung mit gespeicherten Statistiken,
+negative Zähler und den Abmeldepfad mit einem `ServerPlayer`. Sie laufen auch in
+GitHub Actions. Testklassen und die leere Teststruktur gehören zu einem eigenen
+Source-Set und werden nicht in die ausgelieferten JARs gepackt.
 
 `build` prüft außerdem Runtime- und Sources-JARs und erzeugt `.sha256`-Dateien.
 Die No-GUI-Prüfung verbietet Client-Klassen, Leaderboard-Code und GUI-Ressourcen.

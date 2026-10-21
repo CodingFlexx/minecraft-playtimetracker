@@ -28,6 +28,10 @@ jobs:
       - name: Build, test and verify variant
         working-directory: forge-1.18.2
         run: ./gradlew --no-daemon -Pvariant=${{ matrix.variant }} build
+      - name: Live statistics regression tests in Forge
+        if: matrix.variant == 'gui'
+        working-directory: forge-1.18.2
+        run: ./gradlew --no-daemon -Pvariant=gui runGameTestServer
       - name: Downloadable JARs and checksums
         uses: actions/upload-artifact@v7
         with:

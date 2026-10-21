@@ -120,16 +120,22 @@ public final class LeaderboardService implements AutoCloseable {
         StatsCounter stats = player.getStats();
         long mined = 0;
         for (var block : Registry.BLOCK) mined += Math.max(0, stats.getValue(Stats.BLOCK_MINED.get(block)));
-        long distance = 0;
-        for (String key : new String[]{"walk_one_cm", "sprint_one_cm", "crouch_one_cm", "swim_one_cm",
-                "walk_on_water_one_cm", "walk_under_water_one_cm", "fly_one_cm", "aviate_one_cm",
-                "boat_one_cm", "minecart_one_cm", "horse_one_cm", "pig_one_cm", "strider_one_cm"}) {
-            distance += Math.max(0, stats.getValue(Stats.CUSTOM.get(new ResourceLocation("minecraft:" + key))));
-        }
         return new PlayerStats(player.getUUID(), player.getGameProfile().getName(),
                 stats.getValue(Stats.CUSTOM.get(Stats.PLAY_TIME)), stats.getValue(Stats.CUSTOM.get(Stats.DEATHS)),
-                stats.getValue(Stats.CUSTOM.get(Stats.MOB_KILLS)), mined, distance,
+                stats.getValue(Stats.CUSTOM.get(Stats.MOB_KILLS)), mined, distanceCm(stats),
                 stats.getValue(Stats.CUSTOM.get(Stats.JUMP)), true, afk.test(player.getUUID()));
+    }
+
+    static long distanceCm(StatsCounter stats) {
+        long distance = 0;
+        // CUSTOM_STAT uses identity keys in 1.18.2; equal, newly created IDs are not registered values.
+        for (ResourceLocation id : new ResourceLocation[]{Stats.WALK_ONE_CM, Stats.SPRINT_ONE_CM,
+                Stats.CROUCH_ONE_CM, Stats.SWIM_ONE_CM, Stats.WALK_ON_WATER_ONE_CM, Stats.WALK_UNDER_WATER_ONE_CM,
+                Stats.FLY_ONE_CM, Stats.AVIATE_ONE_CM, Stats.BOAT_ONE_CM, Stats.MINECART_ONE_CM,
+                Stats.HORSE_ONE_CM, Stats.PIG_ONE_CM, Stats.STRIDER_ONE_CM}) {
+            distance += Math.max(0, stats.getValue(Stats.CUSTOM.get(id)));
+        }
+        return distance;
     }
 
     @Override public void close() { closed = true; reader.shutdownNow(); requests.clear(); }
